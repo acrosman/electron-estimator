@@ -14,7 +14,7 @@ $(document).ready(function() {
 
   // The event listener for the file upload
   $('#csvFileInput').change(upload);
-  $('#startSimulationButton').click(runSimulation);
+  $('#startSimulationButton').click(startSimulation;
   $('#simulationResultsWrapper').hide();
   $('#simulationAreaWrapper').hide();
   $('#addTaskBtn').click(addRowEvent);
@@ -81,5 +81,34 @@ $(document).ready(function() {
     cells += "<td>" + row.Min; + "</td>/n";
     cells += "<td>" + row.Confidence; + "%</td>/n";
     $('#rawData table').append('<tr class="data">' + cells+ "</tr>");
+  }
+
+  function startSimulation() {
+
+    // Clear any existing displays
+    $("#simulationAverage").html('');
+    $("#simulationMedian").html('');
+    $("#simulationMax").html('');
+    $("#simulationMin").html('');
+    $("#histoGram").html('');
+    $('#simulationResultsWrapper').show();
+
+    var settings = {
+      'data': data,
+      'passes': $('#simulationPasses').val(),
+      'limitGraph': $('#limitGraph').is(':checked')
+    };
+
+    simulator.runSimulation(settings, results);
+  }
+
+  function finishSimulation(results) {
+    $("#simulationAverage").html('Average Project Total Time: ' + results.avg);
+    $("#simulationMedian").html('Median Project Total Time: ' + results.median);
+    $("#simulationMax").html('Worst Case Project Total Time: ' + results.max);
+    $("#simulationMin").html('Best Case Project Total Time: ' + results.min);
+    $("#simulationRunningTime").html('Simulation Running Time (ms): ' + results.runningTime);
+    $("#simulationStandRange").html('Projected Likey Range: ' + results.likelyMin + " - " + results.likelyMax);
+    $("#simulationStandDev").html('Standard Deviation: ' + results.sd);
   }
 });

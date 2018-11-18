@@ -1,22 +1,14 @@
-function runSimulation(settings) {
-  var passes = parseInt($('#simulationPasses').val());
-  var limitGraph = $('#limitGraph').is(':checked');
-  var upperbound = calculateUpperBound(data);
-  var times = new Array(upperbound).fill(0);
-  var estimates = new Array();
-  var min = -1;
-  var max = 0;
-  var runningTime = 0;
-  var startTime = 0;
-  var endTime = 0;
-
-  // Clear any existing displays
-  $("#simulationAverage").html('');
-  $("#simulationMedian").html('');
-  $("#simulationMax").html('');
-  $("#simulationMin").html('');
-  $("#histoGram").html('');
-  $('#simulationResultsWrapper').show();
+function runSimulation(settings, callback) {
+  const passes = 0;
+  const limitGraph = false;
+  const upperbound = calculateUpperBound(data);
+  const times = new Array(upperbound).fill(0);
+  const estimates = new Array();
+  const min = -1;
+  const max = 0;
+  const runningTime = 0;
+  const startTime = 0;
+  const endTime = 0;
 
   // Run the simulation.
   var startTime = Date.now();
@@ -43,13 +35,6 @@ function runSimulation(settings) {
   var sd = getStandardDeviation(estimates);
   var likelyMin = Math.round(median - sd);
   var likelyMax = Math.round(median + sd);
-  $("#simulationAverage").html('Average Project Total Time: ' + avg);
-  $("#simulationMedian").html('Median Project Total Time: ' + median);
-  $("#simulationMax").html('Worst Case Project Total Time: ' + max);
-  $("#simulationMin").html('Best Case Project Total Time: ' + min);
-  $("#simulationRunningTime").html('Simulation Running Time (ms): ' + runningTime);
-  $("#simulationStandRange").html('Projected Likey Range: ' + likelyMin + " - " + likelyMax);
-  $("#simulationStandDev").html('Standard Deviation: ' + sd);
 
   // Trim the array to just hold cells in the range of results.
   // If limit graph is set, just show two standard deviations on the graph.
@@ -62,6 +47,8 @@ function runSimulation(settings) {
   var trimmed = times.filter(function (e, i){
     return (i > lower && i < upper);
   });
+
+
 
   buildHistogram(trimmed, lower, upper, median, sd);
 
@@ -260,3 +247,6 @@ function buildHistogram(list, min, max, median, stdDev) {
     .style("text-anchor", "middle")
     .text("Frequency");
 }
+
+exports.runSimulation = runSimulation;
+exports.buildHistogram = buildHistogram;
