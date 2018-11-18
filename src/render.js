@@ -14,7 +14,7 @@ $(document).ready(function() {
 
   // The event listener for the file upload
   $('#csvFileInput').change(upload);
-  $('#startSimulationButton').click(startSimulation;
+  $('#startSimulationButton').click(startSimulation);
   $('#simulationResultsWrapper').hide();
   $('#simulationAreaWrapper').hide();
   $('#addTaskBtn').click(addRowEvent);

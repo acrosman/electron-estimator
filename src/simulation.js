@@ -1,3 +1,12 @@
+const d3 = require('d3');
+
+// Get a random number is a given range.
+function getRandom(minimum, maximum) {
+  const min = Math.ceil(minimum);
+  const max = Math.floor(maximum);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 // Calculates the upper bound for a specific task record. Because developers
 // are known to underestimate, the idea here is the less confidence they have
 // in their estimate the more risk that it could go much higher than expected.
@@ -6,8 +15,8 @@
 // 80% gives us max * 2.
 // 70% max * 3.
 // And so on.
-function taskUpperBound(max_estimate, confidence) {
-  return max_estimate * Math.abs(Math.floor(10 - (confidence * 10)));
+function taskUpperBound(maxEstimate, confidence) {
+  return maxEstimate * Math.abs(Math.floor(10 - (confidence * 10)));
 }
 
 // Does the estimate for one task. It picks a random number between min and
@@ -18,8 +27,8 @@ function taskUpperBound(max_estimate, confidence) {
 // project going way over time. For every 10% drop in overrun grows by 100%
 // of max estimate.
 function generateEstimate(minimum, maximum, confidence) {
-  const max = parseInt(maximum);
-  const min = parseInt(minimum);
+  const max = parseInt(maximum, 10);
+  const min = parseInt(minimum, 10);
   const base = getRandom(1, 1000);
   const boundry = confidence * 1000;
   const midBoundry = Math.floor((1000 - boundry) / 2);
@@ -30,7 +39,7 @@ function generateEstimate(minimum, maximum, confidence) {
   if (base < boundry) {
     total = (base % range) + min;
   } else if ((base - boundry) < midBoundry) {
-    total = min == 0 ? 0 : base % min;
+    total = min === 0 ? 0 : base % min;
   } else {
     total = getRandom(max, maxOverrun);
   }
@@ -38,19 +47,12 @@ function generateEstimate(minimum, maximum, confidence) {
   return total;
 }
 
-// Get a random number is a given range.
-function getRandom(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 // Calculates the median value for all times run during a series of simulations.
 function getMedian(data) {
   const m = [];
-  $.each(data, (index, value) => {
-    next_set = new Array(value).fill(index);
-    m.splice(0, 0, ...next_set);
+  data.forEach((index, value) => {
+    const nextSet = new Array(value).fill(index);
+    m.splice(0, 0, ...nextSet);
   });
 
   m.sort((a, b) => a - b);
@@ -71,8 +73,8 @@ function getStandardDeviation(numberArray) {
 
   // Calculate the standard deviation itself.
   let sdPrep = 0;
-  for (const key in numberArray) {
-    sdPrep += Math.pow((parseFloat(numberArray[key]) - avg), 2);
+  for (let i = 0; i < numberArray.length; i += 1) {
+    sdPrep += (parseFloat(numberArray[i]) - avg) ** 2;
   }
   return Math.sqrt(sdPrep / numberArray.length);
 }
@@ -81,7 +83,7 @@ function getStandardDeviation(numberArray) {
 function calculateUpperBound(tasks) {
   let total = 0;
 
-  $.each(tasks, (index, row) => {
+  tasks.forEach((row) => {
     total += taskUpperBound(row.Max, row.Confidence);
   });
   return total;
@@ -89,11 +91,10 @@ function calculateUpperBound(tasks) {
 
 // Builds the histogram graph.
 function buildHistogram(list, min, max, median, stdDev) {
-  const minbin = min;
-  const maxbin = max;
+  const minBin = min;
+  const maxBin = max;
   const stdDevOffset = Math.floor(stdDev);
-  const numbins = maxbin - minbin;
-  const maxval = Math.max(...list);
+  const maxVal = Math.max(...list);
   const medianIndex = Math.floor(median - min);
 
   // whitespace on either side of the bars
@@ -105,8 +106,8 @@ function buildHistogram(list, min, max, median, stdDev) {
   const height = 500 - margin.top - margin.bottom;
 
   // Set the limits of the x axis
-  const xmin = minbin - 1;
-  const xmax = maxbin + 1;
+  const xmin = minBin - 1;
+  const xmax = maxBin + 1;
 
   // This scale is for determining the widths of the histogram bars
   const x = d3.scale.linear()
@@ -119,7 +120,7 @@ function buildHistogram(list, min, max, median, stdDev) {
     .range([0, width]);
 
   const y = d3.scale.linear()
-    .domain([0, maxval])
+    .domain([0, maxVal])
     .range([height, 0]);
 
   const xAxis = d3.svg.axis()
@@ -151,7 +152,7 @@ function buildHistogram(list, min, max, median, stdDev) {
       return 'bar';
     })
     .attr('transform', (d, i) => `translate(${
-      x2(i + minbin)},${y(d)})`);
+      x2(i + minBin)},${y(d)})`);
 
   // Add rectangles of correct size at correct location.
   bar.append('rect')
